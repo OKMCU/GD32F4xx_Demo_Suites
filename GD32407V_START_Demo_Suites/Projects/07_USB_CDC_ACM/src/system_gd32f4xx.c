@@ -98,7 +98,7 @@ static void system_clock_200m_25m_hxtal(void);
 static void system_clock_config(void);
 
 /*!
-    \brief      setup the microcontroller system, initialize the system
+    \brief      setup the micro controller system, initialize the system
     \param[in]  none
     \param[out] none
     \retval     none
@@ -129,7 +129,7 @@ void SystemInit (void)
   RCU_INT = 0x00000000U;
          
   /* Configure the System clock source, PLL Multiplier and Divider factors, 
-     AHB/APBx prescalers and Flash settings ----------------------------------*/
+     AHB/APBx prescaler and Flash settings ----------------------------------*/
   system_clock_config();
 
 
@@ -447,7 +447,7 @@ static void system_clock_120m_25m_hxtal(void)
     while(0U == (RCU_CTL & RCU_CTL_PLLSTB)){
     }
     
-    /* Enable the high-drive to extend the clock frequency to 120 Mhz */
+    /* Enable the high-drive to extend the clock frequency to 120 MHz */
     PMU_CTL |= PMU_CTL_HDEN;
     while(0U == (PMU_CS & PMU_CS_HDRF))
     {
@@ -518,7 +518,7 @@ static void system_clock_168m_irc16m(void)
     while(0U == (RCU_CTL & RCU_CTL_PLLSTB)){
     }
     
-    /* Enable the high-drive to extend the clock frequency to 168 Mhz */
+    /* Enable the high-drive to extend the clock frequency to 168 MHz */
     PMU_CTL |= PMU_CTL_HDEN;
     while(0U == (PMU_CS & PMU_CS_HDRF))
     {
@@ -584,7 +584,7 @@ static void system_clock_168m_8m_hxtal(void)
     while(0U == (RCU_CTL & RCU_CTL_PLLSTB)){
     }
   
-    /* Enable the high-drive to extend the clock frequency to 168 Mhz */
+    /* Enable the high-drive to extend the clock frequency to 168 MHz */
     PMU_CTL |= PMU_CTL_HDEN;
     while(0U == (PMU_CS & PMU_CS_HDRF))
     {
@@ -655,7 +655,7 @@ static void system_clock_168m_25m_hxtal(void)
     while(0U == (RCU_CTL & RCU_CTL_PLLSTB)){
     }
     
-    /* Enable the high-drive to extend the clock frequency to 168 Mhz */
+    /* Enable the high-drive to extend the clock frequency to 168 MHz */
     PMU_CTL |= PMU_CTL_HDEN;
     while(0U == (PMU_CS & PMU_CS_HDRF))
     {
@@ -726,7 +726,7 @@ static void system_clock_200m_irc16m(void)
     while(0U == (RCU_CTL & RCU_CTL_PLLSTB)){
     }
     
-    /* Enable the high-drive to extend the clock frequency to 200 Mhz */
+    /* Enable the high-drive to extend the clock frequency to 200 MHz */
     PMU_CTL |= PMU_CTL_HDEN;
     while(0U == (PMU_CS & PMU_CS_HDRF))
     {
@@ -797,7 +797,7 @@ static void system_clock_200m_8m_hxtal(void)
     while(0U == (RCU_CTL & RCU_CTL_PLLSTB)){
     }
     
-    /* Enable the high-drive to extend the clock frequency to 200 Mhz */
+    /* Enable the high-drive to extend the clock frequency to 200 MHz */
     PMU_CTL |= PMU_CTL_HDEN;
     while(0U == (PMU_CS & PMU_CS_HDRF))
     {
@@ -868,7 +868,7 @@ static void system_clock_200m_25m_hxtal(void)
     while(0U == (RCU_CTL & RCU_CTL_PLLSTB)){
     }
     
-    /* Enable the high-drive to extend the clock frequency to 200 Mhz */
+    /* Enable the high-drive to extend the clock frequency to 200 MHz */
     PMU_CTL |= PMU_CTL_HDEN;
     while(0U == (PMU_CS & PMU_CS_HDRF))
     {
@@ -891,7 +891,7 @@ static void system_clock_200m_25m_hxtal(void)
 
 #endif /* __SYSTEM_CLOCK_IRC16M */
 /*!
-    \brief      update the SystemCoreClock with current core clock retrieved from cpu registers
+    \brief      update the SystemCoreClock with current core clock retrieved from CPU registers
     \param[in]  none
     \param[out] none
     \retval     none

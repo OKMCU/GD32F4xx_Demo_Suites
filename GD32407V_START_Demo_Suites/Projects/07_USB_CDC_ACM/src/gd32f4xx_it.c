@@ -1,16 +1,12 @@
 /*!
-    \file  gd32f4xx_it.c
-    \brief interrupt service routines
+    \file    gd32f4xx_it.c
+    \brief   main interrupt service routines
 
-    \version 2016-08-15, V1.0.0, firmware for GD32F4xx
-    \version 2018-12-12, V2.0.0, firmware for GD32F4xx
-    \version 2020-04-17, V2.0.1, firmware for GD32F4xx
+    \version 2020-12-04, V2.0.0, demo for GD32F4xx
 */
 
 /*
-    Copyright (c) 2018, GigaDevice Semiconductor Inc.
-
-    All rights reserved.
+    Copyright (c) 2020, GigaDevice Semiconductor Inc.
 
     Redistribution and use in source and binary forms, with or without modification, 
 are permitted provided that the following conditions are met:
@@ -37,11 +33,12 @@ OF SUCH DAMAGE.
 */
 
 #include "gd32f4xx_it.h"
-#include "usbd_int.h"
+#include "usbd_core.h"
+#include "drv_usbd_int.h"
 
-extern usb_core_handle_struct usbhs_core_dev;
+extern usb_core_driver cdc_acm;
 
-extern void usb_timer_irq (void);
+void usb_timer_irq (void);
 
 /* local function prototypes ('static') */
 static void resume_mcu_clk(void);
@@ -65,7 +62,7 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
     /* if Hard Fault exception occurs, go to infinite loop */
-    while (1) {
+    while (1){
     }
 }
 
@@ -139,7 +136,7 @@ void PendSV_Handler(void)
 }
 
 /*!
-    \brief      this function handles SysTick exception
+    \brief      this function handles SysTick Handler
     \param[in]  none
     \param[out] none
     \retval     none
@@ -149,7 +146,7 @@ void SysTick_Handler(void)
 }
 
 /*!
-    \brief      this function handles Timer2 Handler
+    \brief      this function handles timer2 Handler
     \param[in]  none
     \param[out] none
     \retval     none
@@ -159,7 +156,7 @@ void TIMER2_IRQHandler(void)
     usb_timer_irq();
 }
 
-#ifdef USE_USBFS
+#ifdef USE_USB_FS
 
 /*!
     \brief      this function handles USBFS wakeup interrupt handler
@@ -169,24 +166,33 @@ void TIMER2_IRQHandler(void)
 */
 void USBFS_WKUP_IRQHandler(void)
 {
-    __IO uint8_t is_configured = (usbhs_core_dev.dev.status == USB_STATUS_CONFIGURED)? 1U : 0U;
-
-    if ((1 == usbhs_core_dev.cfg.low_power) && (1 == is_configured)) {
+    if (cdc_acm.bp.low_power) {
         resume_mcu_clk();
 
-        rcu_pll48m_clock_config(RCU_PLL48MSRC_PLLQ);
+       #ifndef USE_IRC48M
+            rcu_pll48m_clock_config(RCU_PLL48MSRC_PLLQ);
 
-        rcu_ck48m_clock_config(RCU_CK48MSRC_PLL48M);
+            rcu_ck48m_clock_config(RCU_CK48MSRC_PLL48M);
+        #else
+            /* enable IRC48M clock */
+            rcu_osci_on(RCU_IRC48M);
+
+            /* wait till IRC48M is ready */
+            while (SUCCESS != rcu_osci_stab_wait(RCU_IRC48M)) {
+            }
+
+            rcu_ck48m_clock_config(RCU_CK48MSRC_IRC48M);
+        #endif /* USE_IRC48M */
 
         rcu_periph_clock_enable(RCU_USBFS);
 
-        usb_clock_ungate(&usbhs_core_dev);
+        usb_clock_active(&cdc_acm);
     }
 
     exti_interrupt_flag_clear(EXTI_18);
 }
 
-#elif defined(USE_USBHS)
+#elif defined(USE_USB_HS)
 
 /*!
     \brief      this function handles USBHS wakeup interrupt handler
@@ -196,22 +202,31 @@ void USBFS_WKUP_IRQHandler(void)
 */
 void USBHS_WKUP_IRQHandler(void)
 {
-    __IO uint8_t is_configured = (usbhs_core_dev.dev.status == USB_STATUS_CONFIGURED)? 1U : 0U;
-
-    if ((1 == usbhs_core_dev.cfg.low_power) && (1 == is_configured)) {
+    if (msc_udisk.bp.low_power) {
         resume_mcu_clk();
 
-#ifdef USE_EMBEDDED_PHY
-        rcu_pll48m_clock_config(RCU_PLL48MSRC_PLLQ);
+       #ifndef USE_IRC48M
+            #ifdef USE_EMBEDDED_PHY
+                rcu_pll48m_clock_config(RCU_PLL48MSRC_PLLQ);
 
-        rcu_ck48m_clock_config(RCU_CK48MSRC_PLL48M);
-#elif defined(USE_ULPI_PHY)
-        rcu_periph_clock_enable(RCU_USBHSULPI);
-#endif
+                rcu_ck48m_clock_config(RCU_CK48MSRC_PLL48M);
+            #elif defined(USE_ULPI_PHY)
+                rcu_periph_clock_enable(RCU_USBHSULPI);
+            #endif
+        #else
+            /* enable IRC48M clock */
+            rcu_osci_on(RCU_IRC48M);
+
+            /* wait till IRC48M is ready */
+            while (SUCCESS != rcu_osci_stab_wait(RCU_IRC48M)) {
+            }
+
+            rcu_ck48m_clock_config(RCU_CK48MSRC_IRC48M);
+        #endif /* USE_IRC48M */
 
         rcu_periph_clock_enable(RCU_USBHS);
 
-        usb_clock_ungate(&usbhs_core_dev);
+        usb_clock_active(&cdc_acm);
     }
 
     exti_interrupt_flag_clear(EXTI_20);
@@ -219,7 +234,7 @@ void USBHS_WKUP_IRQHandler(void)
 
 #endif /* USE_USBFS */
 
-#ifdef USE_USBFS
+#ifdef USE_USB_FS
 
 /*!
     \brief      this function handles USBFS IRQ Handler
@@ -229,10 +244,10 @@ void USBHS_WKUP_IRQHandler(void)
 */
 void USBFS_IRQHandler(void)
 {
-    usbd_isr (&usbhs_core_dev);
+    usbd_isr (&cdc_acm);
 }
 
-#elif defined(USE_USBHS)
+#elif defined(USE_USB_HS)
 
 /*!
     \brief      this function handles USBHS IRQ Handler
@@ -242,37 +257,39 @@ void USBFS_IRQHandler(void)
 */
 void USBHS_IRQHandler(void)
 {
-    usbd_isr (&usbhs_core_dev);
+    usbd_isr(&cdc_acm);
 }
 
 #endif /* USE_USBFS */
 
-#ifdef USBHS_DEDICATED_EP1_ENABLED
+#ifdef USB_HS_DEDICATED_EP1_ENABLED
 
-/**
-  * @brief  This function handles EP1_IN Handler.
-  * @param  None
-  * @retval None
-  */
+/*!
+    \brief      this function handles EP1_IN Handler
+    \param[in]  none
+    \param[out] none
+    \retval     none
+*/
 void USBHS_EP1_In_IRQHandler(void)
 {
-    USBD_EP1IN_ISR_Handler (&usbhs_core_dev);
+    usbd_int_dedicated_ep1in (&cdc_acm);
 }
 
-/**
-  * @brief  This function handles EP1_OUT Handler.
-  * @param  None
-  * @retval None
-  */
+/*!
+    \brief      this function handles EP1_OUT Handler
+    \param[in]  none
+    \param[out] none
+    \retval     none
+*/
 void USBHS_EP1_Out_IRQHandler(void)
 {
-    USBD_EP1OUT_ISR_Handler (&usbhs_core_dev);
+    usbd_int_dedicated_ep1out (&cdc_acm);
 }
 
 #endif /* USBHS_DEDICATED_EP1_ENABLED */
 
 /*!
-    \brief      resume mcu clock
+    \brief      resume MCU clock
     \param[in]  none
     \param[out] none
     \retval     none

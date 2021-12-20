@@ -1,15 +1,12 @@
 /*!
-    \file  usbd_conf.h
-    \brief USBFS device-mode configuration header file
+    \file    usbd_conf.h
+    \brief   the header file of USB device configuration
 
-    \version 2016-08-15, V1.0.0, firmware for GD32F4xx
-    \version 2018-12-12, V2.0.0, firmware for GD32F4xx
+    \version 2020-09-04, V3.0.0, demo for GD32F4xx
 */
 
 /*
-    Copyright (c) 2018, GigaDevice Semiconductor Inc.
-
-    All rights reserved.
+    Copyright (c) 2020, GigaDevice Semiconductor Inc.
 
     Redistribution and use in source and binary forms, with or without modification, 
 are permitted provided that the following conditions are met:
@@ -35,35 +32,34 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
-#ifndef USBD_CONF_H
-#define USBD_CONF_H
+#ifndef __USBD_CONF_H
+#define __USBD_CONF_H
 
 #include "usb_conf.h"
 
-#define USBD_CFG_MAX_NUM                   1
-#define USBD_ITF_MAX_NUM                   1
-#define USB_STR_DESC_MAX_SIZE              64
+#define USBD_CFG_MAX_NUM                1
+#define USBD_ITF_MAX_NUM                1
+#define USB_STR_DESC_MAX_SIZE           64
 
-/* USB feature -- Self Powered */
-#define USBD_SELF_POWERED
+#define CDC_COM_INTERFACE               0
 
-#define USB_STRING_COUNT                   4
 
 /* endpoint count used by the CDC ACM device */
-#define CDC_ACM_CMD_EP                     EP2_IN
-#define CDC_ACM_DATA_IN_EP                 EP1_IN
-#define CDC_ACM_DATA_OUT_EP                EP3_OUT
+#define CDC_CMD_EP                      EP2_IN
+#define CDC_DATA_IN_EP                  EP1_IN
+#define CDC_DATA_OUT_EP                 EP3_OUT
 
-#define CDC_ACM_CMD_PACKET_SIZE            8
-
-#ifdef USE_USBHS  
+#ifdef USE_USB_HS
     #ifdef USE_ULPI_PHY
-        #define CDC_ACM_DATA_PACKET_SIZE   512
+        #define USB_CDC_DATA_PACKET_SIZE   512
     #else
-        #define CDC_ACM_DATA_PACKET_SIZE   64
+        #define USB_CDC_DATA_PACKET_SIZE   64
     #endif
-#else  /* USE_USBFS */
-    #define CDC_ACM_DATA_PACKET_SIZE       64
+#else /*USE_USB_FS*/
+    #define USB_CDC_DATA_PACKET_SIZE       64
 #endif
 
-#endif /* USBD_CONF_H */
+#define USB_CDC_CMD_PACKET_SIZE            8
+#define USB_STRING_COUNT                4
+
+#endif /* __USBD_CONF_H */

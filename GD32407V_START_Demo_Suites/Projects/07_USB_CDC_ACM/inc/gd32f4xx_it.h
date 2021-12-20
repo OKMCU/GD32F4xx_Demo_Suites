@@ -1,15 +1,12 @@
 /*!
-    \file  gd32f4xx_it.h
-    \brief the header file of the ISR
+    \file    gd32f4xx_it.h
+    \brief   the header file of the ISR
 
-    \version 2016-08-15, V1.0.0, firmware for GD32F4xx
-    \version 2018-12-12, V2.0.0, firmware for GD32F4xx
+    \version 2020-09-04, V3.0.0, demo for GD32F4xx
 */
 
 /*
-    Copyright (c) 2018, GigaDevice Semiconductor Inc.
-
-    All rights reserved.
+    Copyright (c) 2020, GigaDevice Semiconductor Inc.
 
     Redistribution and use in source and binary forms, with or without modification, 
 are permitted provided that the following conditions are met:
@@ -38,11 +35,7 @@ OF SUCH DAMAGE.
 #ifndef GD32F4XX_IT_H
 #define GD32F4XX_IT_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif 
-
-#include "usbd_core.h"
+#include "gd32f4xx.h"
 
 /* function declarations */
 /* NMI handle function */
@@ -63,13 +56,24 @@ void DebugMon_Handler(void);
 void PendSV_Handler(void);
 /* SysTick handle function */
 void SysTick_Handler(void);
+/* this function handles TIMER2 IRQ Handler */
+void TIMER2_IRQHandler(void);
+#ifdef USE_USB_FS
 /* this function handles USB wakeup interrupt handler */
 void USBFS_WKUP_IRQHandler(void);
 /* this function handles USBFS IRQ Handler */
 void USBFS_IRQHandler(void);
-
-#ifdef __cplusplus
-}
+#else
+/* this function handles USB wakeup interrupt handler */
+void USBHS_WKUP_IRQHandler(void);
+/* this function handles USBHS IRQ Handler */
+void USBHS_IRQHandler(void);
+#endif
+#ifdef USB_HS_DEDICATED_EP1_ENABLED
+/* this function handles EP1_IN IRQ Handler */
+void USBHS_EP1_In_IRQHandler(void);
+/* this function handles EP1_OUT IRQ Handler */
+void USBHS_EP1_Out_IRQHandler(void)
 #endif
 
 #endif /* GD32F4XX_IT_H */

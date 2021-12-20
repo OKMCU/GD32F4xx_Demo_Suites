@@ -1,15 +1,12 @@
 /*!
-    \file  gd32f4xx_libopt.h
-    \brief library optional for gd32f4xx
-    
-    \version 2016-08-15, V1.0.0, firmware for GD32F4xx
-    \version 2018-12-12, V2.0.0, firmware for GD32F4xx
+    \file    gd32f4xx_libopt.h
+    \brief   library optional for gd32f4xx
+
+    \version 2020-09-04, V3.0.0, demo for GD32F4xx
 */
 
 /*
-    Copyright (c) 2018, GigaDevice Semiconductor Inc.
-
-    All rights reserved.
+    Copyright (c) 2020, GigaDevice Semiconductor Inc.
 
     Redistribution and use in source and binary forms, with or without modification, 
 are permitted provided that the following conditions are met:
