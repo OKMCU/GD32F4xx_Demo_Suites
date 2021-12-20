@@ -73,20 +73,22 @@ int main(void)
     while (ctc_flag_get(CTC_FLAG_CKOK) == RESET) {
     }
 #endif
-    //usb_cdc_handler *cdc = cdc_acm.dev.class_data[CDC_COM_INTERFACE];
+    
     while (1) {
-#if 0
-        if ((1 == cdc->packet_receive) && (1 == cdc->packet_sent)) {
-            cdc->packet_sent = 0;
-            /* receive datas from the host when the last packet datas have sent to the host */
-            cdc_acm_data_receive(&cdc_acm);
-        } else {
-            if (0 != cdc->receive_length) {
-                /* send receive data */
-                cdc_acm_data_send(&cdc_acm);
-                cdc->receive_length = 0;
+        if(cdc_acm.dev.cur_status == USBD_CONFIGURED)
+        {
+            usb_cdc_handler *cdc = (usb_cdc_handler *)cdc_acm.dev.class_data[CDC_COM_INTERFACE];
+            if ((1 == cdc->packet_receive) && (1 == cdc->packet_sent)) {
+                cdc->packet_sent = 0;
+                /* receive datas from the host when the last packet datas have sent to the host */
+                cdc_acm_data_receive(&cdc_acm);
+            } else {
+                if (0 != cdc->receive_length) {
+                    /* send receive data */
+                    cdc_acm_data_send(&cdc_acm);
+                    cdc->receive_length = 0;
+                }
             }
         }
-#endif
     }
 }
