@@ -1,0 +1,7 @@
+.vscode
+settings
+Debug
+*.dep
+*.out
+*.ewt
+*.ewd
